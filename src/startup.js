@@ -6,12 +6,12 @@ import hashProduct from "./mutations/hashProduct.js";
  * @param {Object} context Startup context
  * @returns {undefined}
  */
- async function extendSchemas(context) {
-  const allFulfillmentTypesArray = await context.queries.allFulfillmentTypes(context);
+async function extendSchemas(context) {
+  let allFulfillmentTypesArray = await context.queries.allFulfillmentTypes(context);
 
-  if (!allFulfillmentTypesArray || allFulfillmentTypesArray.length === 0){
+  if (!allFulfillmentTypesArray || allFulfillmentTypesArray.length === 0) {
     Logger.warn("No fulfillment types available, setting 'shipping' as default");
-    allFulfillmentTypesArray = ['shipping'];
+    allFulfillmentTypesArray = ["shipping"];
   }
 
   const { simpleSchemas: { CatalogProduct } } = context;
@@ -22,9 +22,9 @@ import hashProduct from "./mutations/hashProduct.js";
     },
     "supportedFulfillmentTypes.$": {
       type: String,
-      allowedValues: allFulfillmentTypesArray,
-    },
-  }
+      allowedValues: allFulfillmentTypesArray
+    }
+  };
   CatalogProduct.extend(schemaCatalogProductExtension);
 }
 

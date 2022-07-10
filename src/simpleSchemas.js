@@ -336,7 +336,7 @@ export const CatalogProductVariant = CatalogProductOption.clone().extend({
  * @property {String} sku optional
  * @property {String} slug optional
  * @property {SocialMetadata[]} socialMetadata optional
-//  * @property {String[]} supportedFulfillmentTypes Types of fulfillment ("shipping", "pickup", etc) allowed for this product
+ * @property {String[]} supportedFulfillmentTypes Types of fulfillment ("shipping", "pickup", etc) allowed for this product
  * @property {Array} tagIds optional
  * @property {String} title optional
  * @property {String} type required, default value: `product-simple`
@@ -467,12 +467,12 @@ export const CatalogProduct = new SimpleSchema({
     type: SocialMetadata
   },
   // This is extended in startup with dynamic values for allowedValues
-  // "supportedFulfillmentTypes": {
-  //   type: Array,
-  //   label: "Supported fulfillment types",
+  "supportedFulfillmentTypes": {
+    type: Array,
+    label: "Supported fulfillment types"
   //   defaultValue: ["shipping"]
-  // },
-  // "supportedFulfillmentTypes.$": String,
+  },
+  "supportedFulfillmentTypes.$": String,
   "tagIds": {
     type: Array,
     label: "Hashtags",

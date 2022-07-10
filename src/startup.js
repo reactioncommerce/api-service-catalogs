@@ -17,11 +17,7 @@ async function extendSchemas(context) {
   const { simpleSchemas: { CatalogProduct } } = context;
 
   const schemaCatalogProductExtension = {
-    "supportedFulfillmentTypes": {
-      type: Array
-    },
     "supportedFulfillmentTypes.$": {
-      type: String,
       allowedValues: allFulfillmentTypesArray
     }
   };

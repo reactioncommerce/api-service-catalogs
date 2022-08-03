@@ -5,6 +5,48 @@ import wasFieldRequested from "@reactioncommerce/api-utils/graphql/wasFieldReque
 import { decodeShopOpaqueId, decodeTagOpaqueId } from "../../xforms/id.js";
 import xformCatalogBooleanFilters from "../../utils/catalogBooleanFilters.js";
 
+async function createPromotionPrices(collections) {
+  const promotionPrices = (await collections.Catalog.find({}, { "product._id": 1 }).toArray())
+    .map(({ product }) => ({
+      productId: product._id,
+      startTime: new Date(0),
+      endTime: new Date(2030, 1, 1),
+      price: 1000,
+    }));
+
+  const result = await collections.PromotionPrice.insertMany(promotionPrices);
+  console.log(result);
+}
+
+async function applyPromotionPrices(catalogProducts, collections) {
+  const productIds = catalogProducts.nodes.map(({product}) => product._id)
+
+  const promotionPrices = await collections.PromotionPrice
+    .find({
+      productId: { $in: productIds },
+      startTime: { $lte: new Date() },
+      endTime: { $gte: new Date() }
+    })
+    .toArray();
+
+  const promotionPriceMapping = {};
+  promotionPrices.forEach((promotionPrice) => {
+    promotionPriceMapping[promotionPrice.productId] = promotionPrice;
+  });
+
+
+  catalogProducts.nodes = catalogProducts.nodes.map(cat => {
+    const promotionPrice = promotionPriceMapping[cat.product.productId];
+    return {
+      ...cat,
+      product: {
+        ...cat.product,
+        promotionPrice: promotionPrice ? promotionPrice.price : null,
+      }
+    }
+  });
+}
+
 /**
  * @name Query/catalogItems
  * @method
@@ -21,6 +63,7 @@ import xformCatalogBooleanFilters from "../../utils/catalogBooleanFilters.js";
  * @returns {Promise<Object>} A CatalogItemConnection object
  */
 export default async function catalogItems(_, args, context, info) {
+  // await createPromotionPrices(context.collections);
   const { shopIds: opaqueShopIds, tagIds: opaqueTagIds, booleanFilters, searchQuery, ...connectionArgs } = args;
 
   const shopIds = opaqueShopIds && opaqueShopIds.map(decodeShopOpaqueId);
@@ -76,9 +119,11 @@ export default async function catalogItems(_, args, context, info) {
     tagIds
   });
 
-  return getPaginatedResponse(query, connectionArgs, {
+  const catalogProducts = await getPaginatedResponse(query, connectionArgs, {
     includeHasNextPage: wasFieldRequested("pageInfo.hasNextPage", info),
     includeHasPreviousPage: wasFieldRequested("pageInfo.hasPreviousPage", info),
     includeTotalCount: wasFieldRequested("totalCount", info)
   });
+  await applyPromotionPrices(catalogProducts, context.collections);
+  return catalogProducts
 }

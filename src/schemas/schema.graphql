@@ -176,6 +176,8 @@ type CatalogProduct implements CatalogProductOrVariant & Node {
 
   "The width of the product, if it has physical dimensions"
   width: Float
+
+  promotionPrice: Float
 }
 
 "A variant of a catalog product"

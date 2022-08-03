@@ -29,6 +29,12 @@ export default async function register(app) {
     version: pkg.version,
     i18n,
     collections: {
+      PromotionPrice: {
+        name: 'PromotionPrice',
+        indexes: [
+          [{productId: 1, startTime: 1, endTime: 1}]
+        ]
+      },
       Catalog: {
         name: "Catalog",
         indexes: [

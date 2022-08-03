@@ -1,0 +1,13 @@
+type PromotionPrice {
+  _id: ID!
+
+  productId: String!
+
+  price: Float!
+
+  startTime: DateTime!
+  endTime: DateTime!
+
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}

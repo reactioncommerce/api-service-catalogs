@@ -4,6 +4,17 @@ import Logger from "@reactioncommerce/logger";
 import ReactionError from "@reactioncommerce/reaction-error";
 import publishProductsToCatalog from "../utils/publishProductsToCatalog.js";
 
+const LIMIT = 1000;
+
+async function getProductIds(collections) {
+  const products = await collections
+    .Products
+    .find({ type: "simple" }, { _id: 1 })
+    .limit(LIMIT)
+    .toArray();
+  return (products).map(({ _id }) => _id);
+}
+
 /**
  *
  * @method publishProducts
@@ -12,9 +23,14 @@ import publishProductsToCatalog from "../utils/publishProductsToCatalog.js";
  * @param {Array} productIds - An array of product IDs
  * @returns {Promise<Object[]>} Array of CatalogItemProduct objects
  */
-export default async function publishProducts(context, productIds) {
+
+export default async function publishProducts(context, _productIds) {
   const { collections } = context;
   const { Catalog, Products } = collections;
+
+  const productIds = await getProductIds(collections);
+
+  console.time("Publish all products");
 
   // Find all products
   const products = await Products.find(
@@ -24,6 +40,8 @@ export default async function publishProducts(context, productIds) {
     { _id: 1, shopId: 1 }
   ).toArray();
 
+  console.log("Got all products ids and shopIds");
+  console.timeLog("Publish all products");
   if (products.length !== productIds.length) {
     throw new ReactionError("not-found", "Some products not found");
   }
@@ -40,6 +58,8 @@ export default async function publishProducts(context, productIds) {
       );
     }
   }
+  console.log("Validated permissions");
+  console.timeLog("Publish all products");
 
   const success = await publishProductsToCatalog(productIds, context);
   if (!success) {
@@ -49,5 +69,8 @@ export default async function publishProducts(context, productIds) {
       "Some Products could not be published to the Catalog. Make sure the parent product and its variants and options are visible."
     );
   }
-  return Catalog.find({ "product.productId": { $in: productIds } }).toArray();
+  console.log("Published all products");
+  console.timeEnd("Publish all products");
+  return null;
+  // return Catalog.find({ "product.productId": { $in: productIds } }).toArray();
 }

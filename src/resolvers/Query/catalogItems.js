@@ -124,6 +124,6 @@ export default async function catalogItems(_, args, context, info) {
     includeHasPreviousPage: wasFieldRequested("pageInfo.hasPreviousPage", info),
     includeTotalCount: wasFieldRequested("totalCount", info)
   });
-  await applyPromotionPrices(catalogProducts, context.collections);
+  // await applyPromotionPrices(catalogProducts, context.collections);
   return catalogProducts
 }

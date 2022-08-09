@@ -1,0 +1,1 @@
+{"query": "query CatalogItems {\n  catalogItems(shopIds: \"cmVhY3Rpb24vc2hvcDpXU3d2d1g2Z28zdFFuNHVKWA==\", last: 10) {\n    totalCount\n    nodes {\n        ... on CatalogItemProduct {\n            _id\n            createdAt\n            product {\n                _id\n                title\n                promotionPrice\n            }\n        }\n    }\n  }\n}"}

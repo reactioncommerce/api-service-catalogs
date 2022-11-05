@@ -466,10 +466,11 @@ export const CatalogProduct = new SimpleSchema({
   "socialMetadata.$": {
     type: SocialMetadata
   },
+  // This is extended in startup with dynamic values for allowedValues
   "supportedFulfillmentTypes": {
     type: Array,
-    label: "Supported fulfillment types",
-    defaultValue: ["shipping"]
+    label: "Supported fulfillment types"
+  //   defaultValue: ["shipping"]
   },
   "supportedFulfillmentTypes.$": String,
   "tagIds": {

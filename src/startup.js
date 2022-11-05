@@ -2,6 +2,29 @@ import Logger from "@reactioncommerce/logger";
 import hashProduct from "./mutations/hashProduct.js";
 
 /**
+ * @summary Extend the schema with updated allowedValues
+ * @param {Object} context Startup context
+ * @returns {undefined}
+ */
+async function extendSchemas(context) {
+  let allFulfillmentTypesArray = context.allRegisteredFulfillmentTypes?.registeredFulfillmentTypes;
+
+  if (!allFulfillmentTypesArray || allFulfillmentTypesArray.length === 0) {
+    Logger.warn("No fulfillment types available, setting 'shipping' as default");
+    allFulfillmentTypesArray = ["shipping"];
+  }
+
+  const { simpleSchemas: { CatalogProduct } } = context;
+
+  const schemaCatalogProductExtension = {
+    "supportedFulfillmentTypes.$": {
+      allowedValues: allFulfillmentTypesArray
+    }
+  };
+  CatalogProduct.extend(schemaCatalogProductExtension);
+}
+
+/**
  * @summary Called on startup
  * @param {Object} context Startup context
  * @param {Object} context.collections Map of MongoDB collections
@@ -9,6 +32,8 @@ import hashProduct from "./mutations/hashProduct.js";
  */
 export default async function catalogStartup(context) {
   const { appEvents, collections } = context;
+
+  await extendSchemas(context);
 
   appEvents.on("afterMediaInsert", ({ mediaRecord }) => {
     const { productId } = mediaRecord.metadata || {};
